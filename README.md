@@ -2,6 +2,12 @@
 
 API REST para control de láminas Panini del Mundial de Fútbol 2026.
 
+## 🌐 URL en producción
+
+```
+https://contro-panini-api.onrender.com
+```
+
 ## Requisitos
 
 - Node.js 18+
@@ -10,16 +16,9 @@ API REST para control de láminas Panini del Mundial de Fútbol 2026.
 ## Instalación
 
 ```bash
-cd backend
+git clone https://github.com/DanielCbana007/contro_panini.git
+cd contro_panini
 npm install
-```
-
-## Poblar la base de datos
-
-Inserta 106 láminas de 7 selecciones (Argentina, Brasil, España, Francia, Portugal, Alemania, Inglaterra):
-
-```bash
-npm run seed
 ```
 
 ## Iniciar servidor
@@ -28,13 +27,28 @@ npm run seed
 npm start
 ```
 
-El servidor corre en `http://localhost:3000`.
+El servidor corre en `http://localhost:3000`.  
+La BD se **puebla automáticamente** al iniciar si está vacía (106 láminas).
 
 Para desarrollo con recarga automática:
 
 ```bash
 npm run dev
 ```
+
+Para poblar la BD manualmente (opcional):
+
+```bash
+npm run seed
+```
+
+## Variables de entorno
+
+| Variable | Default | Descripción |
+|----------|---------|-------------|
+| `PORT` | `3000` | Puerto del servidor |
+
+No necesita archivo `.env`. Render asigna `PORT` automáticamente.
 
 ## Endpoints
 
@@ -184,6 +198,12 @@ Si no encuentra resultados:
 | Portugal | `POR-1` a `POR-15` |
 | Alemania | `ALE-1` a `ALE-14` |
 | Inglaterra | `ING-1` a `ING-15` |
+
+## Repositorio
+
+```
+https://github.com/DanielCbana007/contro_panini
+```
 
 ## Rubrica cubierta
 
