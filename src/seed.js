@@ -116,9 +116,7 @@ const stickers = [
 ];
 
 async function seed() {
-  await initializeDatabase();
   const db = getDatabase();
-
   const stmt = db.prepare(`
     INSERT OR IGNORE INTO stickers (code, player_name, team, position)
     VALUES (?, ?, ?, ?)
@@ -131,8 +129,12 @@ async function seed() {
   }
   stmt.free();
   saveDatabase();
-
   console.log(`Seed completado: ${stickers.length} laminas insertadas`);
 }
 
-seed().catch(console.error);
+if (require.main === module) {
+  const { initializeDatabase } = require('./database');
+  initializeDatabase().then(seed).catch(console.error);
+}
+
+module.exports = seed;

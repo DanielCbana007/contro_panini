@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
-const { initializeDatabase } = require('./database');
+const fs = require('fs');
+const path = require('path');
+const { initializeDatabase, getDatabase } = require('./database');
 const stickersRouter = require('./routes/stickers');
 const playersRouter = require('./routes/players');
 
@@ -19,8 +21,19 @@ app.get('/api/status', (req, res) => {
 
 async function start() {
   await initializeDatabase();
-  app.listen(PORT, () => {
-    console.log(`API corriendo en http://localhost:${PORT}`);
+
+  const db = getDatabase();
+  const row = db.exec("SELECT COUNT(*) as count FROM stickers");
+  const count = row[0]?.values[0][0] || 0;
+
+  if (count === 0) {
+    console.log('BD vacia, ejecutando seed...');
+    const seed = require('./seed');
+    await seed();
+  }
+
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`API corriendo en puerto ${PORT}`);
   });
 }
 
