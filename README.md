@@ -44,11 +44,17 @@ npm run seed
 
 ## Variables de entorno
 
-| Variable | Default | Descripción |
-|----------|---------|-------------|
-| `PORT` | `3000` | Puerto del servidor |
+Crear un archivo `.env` en la raíz del proyecto:
 
-No necesita archivo `.env`. Render asigna `PORT` automáticamente.
+```env
+DATABASE_URL=postgresql://usuario:password@host:puertobasededatos?sslmode=require
+PORT=3000
+```
+
+| Variable | Obligatorio | Descripción |
+|----------|-------------|-------------|
+| `DATABASE_URL` | Sí | URL de conexión a PostgreSQL |
+| `PORT` | No (default: `3000`) | Puerto del servidor |
 
 ## Endpoints
 
@@ -214,5 +220,5 @@ https://github.com/DanielCbana007/contro_panini
 | Consultar láminas repetidas con cantidades | `GET /api/stickers/repeated` |
 | Registrar láminas obtenidas | `POST /api/stickers/register` |
 | Intercambiar repetidas (descuenta inventario) | `POST /api/stickers/exchange` |
-| Datos guardados en SQLite | `sql.js` |
+| Datos guardados en PostgreSQL | `pg` + Neon |
 | Consume API TheSportsDB | `GET /api/players/search` |
