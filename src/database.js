@@ -1,57 +1,44 @@
-const initSqlJs = require('sql.js');
-const fs = require('fs');
-const path = require('path');
+const { Pool } = require('pg');
 
-const DB_PATH = path.join(__dirname, '..', 'db', 'panini.db');
-let db = null;
+let pool = null;
 
-async function initializeDatabase() {
-  const SQL = await initSqlJs();
-
-  if (fs.existsSync(DB_PATH)) {
-    const buffer = fs.readFileSync(DB_PATH);
-    db = new SQL.Database(buffer);
-  } else {
-    db = new SQL.Database();
+function getPool() {
+  if (!pool) {
+    throw new Error('Database not initialized. Call initializeDatabase() first.');
   }
-
-  db.run('PRAGMA journal_mode = WAL');
-  initSchema();
-  saveDatabase();
-  return db;
+  return pool;
 }
 
-function initSchema() {
-  db.run(`
+async function initializeDatabase() {
+  pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+  });
+
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS stickers (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       code TEXT NOT NULL UNIQUE,
       player_name TEXT NOT NULL,
       team TEXT NOT NULL,
       position TEXT,
       obtained INTEGER NOT NULL DEFAULT 0,
       repeated INTEGER NOT NULL DEFAULT 0,
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMP NOT NULL DEFAULT NOW()
     )
   `);
+
+  return pool;
 }
 
-function saveDatabase() {
-  const dir = path.dirname(DB_PATH);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  const data = db.export();
-  const buffer = Buffer.from(data);
-  fs.writeFileSync(DB_PATH, buffer);
+async function query(text, params) {
+  const result = await getPool().query(text, params);
+  return result.rows;
 }
 
-function getDatabase() {
-  if (!db) {
-    throw new Error('Database not initialized. Call initializeDatabase() first.');
-  }
-  return db;
+async function queryOne(text, params) {
+  const rows = await query(text, params);
+  return rows.length > 0 ? rows[0] : null;
 }
 
-module.exports = { initializeDatabase, getDatabase, saveDatabase };
+module.exports = { initializeDatabase, getPool, query, queryOne };

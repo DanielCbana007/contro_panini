@@ -1,4 +1,4 @@
-const { initializeDatabase, getDatabase, saveDatabase } = require('./database');
+const { initializeDatabase, query } = require('./database');
 
 const stickers = [
   { code: 'ARG-1', player_name: 'ARGENTINA', team: 'Argentina', position: 'Team' },
@@ -116,24 +116,19 @@ const stickers = [
 ];
 
 async function seed() {
-  const db = getDatabase();
-  const stmt = db.prepare(`
-    INSERT OR IGNORE INTO stickers (code, player_name, team, position)
-    VALUES (?, ?, ?, ?)
-  `);
-
   for (const s of stickers) {
-    stmt.bind([s.code, s.player_name, s.team, s.position]);
-    stmt.step();
-    stmt.reset();
+    await query(
+      `INSERT INTO stickers (code, player_name, team, position)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (code) DO NOTHING`,
+      [s.code, s.player_name, s.team, s.position]
+    );
   }
-  stmt.free();
-  saveDatabase();
   console.log(`Seed completado: ${stickers.length} laminas insertadas`);
 }
 
 if (require.main === module) {
-  const { initializeDatabase } = require('./database');
+  require('dotenv').config();
   initializeDatabase().then(seed).catch(console.error);
 }
 

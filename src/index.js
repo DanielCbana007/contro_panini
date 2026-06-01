@@ -1,8 +1,8 @@
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
-const { initializeDatabase, getDatabase } = require('./database');
+const { initializeDatabase, query } = require('./database');
 const stickersRouter = require('./routes/stickers');
 const playersRouter = require('./routes/players');
 
@@ -22,9 +22,8 @@ app.get('/api/status', (req, res) => {
 async function start() {
   await initializeDatabase();
 
-  const db = getDatabase();
-  const row = db.exec("SELECT COUNT(*) as count FROM stickers");
-  const count = row[0]?.values[0][0] || 0;
+  const rows = await query('SELECT COUNT(*)::int as count FROM stickers');
+  const count = rows[0]?.count || 0;
 
   if (count === 0) {
     console.log('BD vacia, ejecutando seed...');
